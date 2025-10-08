@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Perkalian Seru 2025</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            color: #333;
+        }
+        #container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #00796b;
+            margin-bottom: 10px;
+        }
+        #level-selection {
+            margin: 20px 0;
+        }
+        .level-btn {
+            background: #ffeb3b;
+            color: #f57c00;
+            border: 2px solid #f57c00;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .level-btn:hover, .level-btn.active {
+            background: #f57c00;
+            color: white;
+        }
+        #game-area {
+            display: none;
+        }
+        #question {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00796b;
+            margin: 20px 0;
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        #answer {
+            width: 120px;
+            padding: 12px;
+            font-size: 20px;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            text-align: center;
+        }
+        #submit {
+            background: #4caf50;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        #submit:hover {
+            background: #388e3c;
+        }
+        #reset {
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        #reset:hover {
+            background: #f57c00;
+        }
+        #feedback {
+            font-size: 20px;
+            margin: 15px 0;
+            min-height: 25px;
+        }
+        #score, #timer {
+            font-size: 18px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        #timer {
+            color: #d32f2f;
+        }
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            pointer-events: none;
+            z-index: 1000;
+            animation: confetti-fall 3s linear infinite;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        @media (max-width: 600px) {
+            #container { padding: 20px; }
+            #question { font-size: 24px; }
+            #answer { width: 100px; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>🎉 Game Perkalian Seru! 🎉</h1>
+        <p>Pilih level kesulitan untuk mulai belajar perkalian!</p>
+
+        <div id="level-selection">
+            <button class="level-btn" onclick="startGame('easy')">Mudah (1-5)</button>
+            <button class="level-btn" onclick="startGame('medium')">Sedang (1-10)</button>
+            <button class="level-btn" onclick="startGame('hard')">Sulit (1-12)</button>
+        </div>
+
+        <div id="game-area">
+            <div id="question"></div>
+            <input type="number" id="answer" placeholder="Jawabanmu" min="0">
+            <br>
+            <button id="submit" onclick="checkAnswer()">Kirim Jawaban</button>
+            <button id="reset" onclick="resetGame()">Mulai Ulang</button>
+            <div id="feedback"></div>
+            <div id="score">Skor: 0</div>
+            <div id="timer">Waktu: 15s</div>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let currentLevel = 'easy';
+        let num1, num2, correctAnswer;
+        let timeLeft = 15;
+        let timerInterval;
+        let gameActive = false;
+
+        const levelRanges = {
+            easy: 5,
+            medium: 10,
+            hard: 12
+        };
+
+        function startGame(level) {
+            currentLevel = level;
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('level-selection').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            score = 0;
+            updateScore();
+            generateQuestion();
+            gameActive = true;
+        }
+
+        function generateQuestion() {
+            const maxNum = levelRanges[currentLevel];
+            num1 = Math.floor(Math.random() * maxNum) + 1;
+            num2 = Math.floor(Math.random() * maxNum) + 1;
+            correctAnswer = num1 * num2;
+            document.getElementById('question').innerText = ${num1} × ${num2} = ?;
+            document.getElementById('answer').value = '';
+            document.getElementById('feedback').innerText = '';
+            document.getElementById('feedback').style.color = 'black';
+            timeLeft = 15;
+            updateTimer();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showFeedback(false, Waktu habis! Jawaban benar: ${correctAnswer}. Latihan lagi ya!);
+                    setTimeout(generateQuestion, 2000);
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            document.getElementById('timer').innerText = Waktu: ${timeLeft}s;
+        }
+
+        function checkAnswer() {
+            if (!gameActive) return;
+            clearInterval(timerInterval);
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            const isCorrect = userAnswer === correctAnswer;
+            showFeedback(isCorrect, isCorrect ? 'Benar sekali! Kamu hebat! 🎉' : Salah! Jawaban benar: ${correctAnswer}. Ingat, ${num1} × ${num2} = ${correctAnswer}.);
+            if (isCorrect) {
+                score++;
+                updateScore();
+                createConfetti();
+            }
+            setTimeout(generateQuestion, 2000);
+        }
+
+        function showFeedback(isCorrect, message) {
+            const feedback = document.getElementById('feedback');
+            feedback.innerText = message;
+            feedback.style.color = isCorrect ? 'green' : 'red';
+        }
+
+        function updateScore() {
+            document.getElementById('score').innerText = Skor: ${score};
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = hsl(${Math.random() * 360}, 70%, 60%);
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+
+        function resetGame() {
+            clearInterval(timerInterval);
+            gameActive = false;
+            document.getElementById('level-selection').style.display = 'block';
+            document.getElementById('game-area').style.display = 'none';
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            score = 0;
+            timeLeft = 15;
+            updateScore();
+            updateTimer();
+            document.getElementById('feedback').innerText = '';
+        }
+
+        // Enter key support untuk input jawaban
+        document.getElementById('answer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
